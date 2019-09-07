@@ -1,2 +1,5 @@
 all:
-	g++ -std="c++11" ex1.cpp -lGL -lGLU -lglut
+	g++ -std="c++11" ex1.cpp -lGL -lGLU -lglut -o trabalhocg
+
+clean:
+	rm trabalhocg
