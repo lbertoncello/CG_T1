@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "circle.h"
+#include "color.h"
 
 using namespace std;
 
@@ -34,8 +35,11 @@ int x_windows_initial_position = 100;
 int y_windows_initial_position = 100;
 
 Point currentCenter;
-float radius = 0.1;
 int num_segments = 100;
+
+float radius = 0.1;
+Color defaultColor(0.5,1.0,0.6);
+Color overlapColor(1.0,1.0,0.6);
 
 bool isLeftMouseButtonPressed = false;
 bool isRightMouseButtonPressed = false;
@@ -61,8 +65,9 @@ bool checkIntersection(Circle circle) {
     return false;
 }
 
-void drawCircle(float cx, float cy, float r, int num_segments) 
+void drawCircle(float cx, float cy, float r, int num_segments, Color color) 
 { 
+    glColor3f(color.getR(), color.getG(), color.getB());
 	glBegin(GL_LINE_LOOP); 
 	for(int ii = 0; ii < num_segments; ii++) 
 	{ 
@@ -77,13 +82,13 @@ void drawCircle(float cx, float cy, float r, int num_segments)
 	glEnd(); 
 }
 
-void drawFilledCircle(float x1, float y1, double radius) {
+void drawFilledCircle(float x1, float y1, double radius, Color color) {
     //filled circle
     float x2,y2;
     float angle;
 
     //x1 = 0.5,y1=0.6;
-    glColor3f(1.0,1.0,0.6);
+    glColor3f(color.getR(), color.getG(), color.getB());
 
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(x1,y1);
@@ -106,15 +111,20 @@ void display (void) {
     glColor3f(1.0, 1.0, 1.0);
 
    if(currentCircleMoving == NULL) {
-        drawCircle(currentCenter.getX(), currentCenter.getY(), radius, num_segments);
+       Circle circle(currentCenter, radius);
+
+       if(checkIntersection(circle)) {
+            drawCircle(currentCenter.getX(), currentCenter.getY(), radius, num_segments, overlapColor);
+       } else {
+            drawCircle(currentCenter.getX(), currentCenter.getY(), radius, num_segments, defaultColor);
+       }
    } else {
        currentCircleMoving->updateCenter(currentCenter);
    }
 
     for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
-        drawFilledCircle(circle_it->getCenter_x(), circle_it->getCenter_y(), circle_it->getRadius());
+        drawFilledCircle(circle_it->getCenter_x(), circle_it->getCenter_y(), circle_it->getRadius(), defaultColor);
     }
-    //drawFilledCircle(x_origin, y_origin, radius);
 
     /* Não esperar */
     glFlush();
