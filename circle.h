@@ -45,4 +45,5 @@ class Circle {
         }
 
         bool isPointInCircle(float x, float y);
+        bool checkIntersection(Circle circle, int num_segments);
 };

@@ -39,6 +39,7 @@ float y_offset = 0;
 float x_origin = 0.5;
 float y_origin = 0.5;
 float radius = 0.1;
+int num_segments = 100;
 
 bool* keyStates = new bool[256];
 bool isLeftMouseButtonPressed = false;
@@ -85,6 +86,16 @@ void keyPress(unsigned char key, int x, int y) {
 void keyUp (unsigned char key, int x, int y) {  
     keyStates[key] = false; // Set the state of the current key to not pressed  
 }  
+
+bool checkIntersection(Circle circle) {
+    for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++) {
+        if(circle.checkIntersection(*circle_it, num_segments)) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 void drawCircle(float cx, float cy, float r, int num_segments) 
 { 
@@ -141,7 +152,7 @@ void display (void) {
     */
 
    if(currentCircleMoving == NULL) {
-        drawCircle(x_origin, y_origin, radius, 100);
+        drawCircle(x_origin, y_origin, radius, num_segments);
    } else {
         currentCircleMoving->setCenter_x(x_origin);
         currentCircleMoving->setCenter_y(y_origin);
@@ -168,7 +179,11 @@ void mouse(int button, int state, int x, int y) {
             y_origin = 1.0 - (y / float(y_windows_size));
 
             Circle circle(x_origin, y_origin, radius);
-            circles.push_back(circle);
+
+            if(checkIntersection(circle) == false) {
+                circles.push_back(circle);
+            }
+            
             //puts(std::to_string(x_origin).c_str());
             //puts(std::to_string(y_origin).c_str());
         } else {
