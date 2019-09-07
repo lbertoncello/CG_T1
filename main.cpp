@@ -33,15 +33,10 @@ int y_windows_size = 250;
 int x_windows_initial_position = 100;
 int y_windows_initial_position = 100;
 
-float offset_value = 0.01;
-float x_offset = 0;
-float y_offset = 0;
-float x_origin = 0.5;
-float y_origin = 0.5;
+Point currentCenter;
 float radius = 0.1;
 int num_segments = 100;
 
-bool* keyStates = new bool[256];
 bool isLeftMouseButtonPressed = false;
 bool isRightMouseButtonPressed = false;
 
@@ -49,43 +44,12 @@ vector<Circle> circles;
 vector<Circle>::iterator circle_it;
 Circle* currentCircleMoving = NULL;
 
-void keyOperations (void) {  
-    if (keyStates['w']) { // If the 'a' key has been pressed  
-        y_offset += offset_value;
-    }  
-    if(keyStates['a']) {
-        x_offset -= offset_value;
-    }
-    if(keyStates['s']) {
-        y_offset -= offset_value;
-    }
-    if(keyStates['d']) {
-        x_offset += offset_value;
-    }
-} 
+void updateCurrentCenter(float x, float y) {
+    float center_x = x / float(x_window_size);
+    float center_y = 1.0 - (y / float(y_windows_size));
 
-void keyPress(unsigned char key, int x, int y) {
-    if(key == 'w') {
-        keyStates[key] = true;
-        //glutPostRedisplay();
-    }
-    if(key == 'a') {
-        keyStates[key] = true;
-        //glutPostRedisplay();
-    }
-    if(key == 's') {
-        keyStates[key] = true;
-        //glutPostRedisplay();
-    }
-    if(key == 'd') {
-        keyStates[key] = true;
-        //glutPostRedisplay();
-    }
+    currentCenter.update(center_x, center_y);
 }
-
-void keyUp (unsigned char key, int x, int y) {  
-    keyStates[key] = false; // Set the state of the current key to not pressed  
-}  
 
 bool checkIntersection(Circle circle) {
     for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++) {
@@ -135,27 +99,16 @@ void drawFilledCircle(float x1, float y1, double radius) {
 }
 
 void display (void) {
-    keyOperations();
      /* Limpar todos os pixels */
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Desenhar um polígono branco (retângulo) */
     glColor3f(1.0, 1.0, 1.0);
 
-    /*
-    glBegin(GL_POLYGON);
-        glVertex3f(x_origin - 0.25 + x_offset, y_origin - 0.25 + y_offset, 0.0);
-        glVertex3f(x_origin + 0.25 + x_offset, y_origin - 0.25 + y_offset, 0.0);
-        glVertex3f(x_origin + 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
-        glVertevector<Circle>::iterator circle_itx3f(x_origin - 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
-    glEnd();
-    */
-
    if(currentCircleMoving == NULL) {
-        drawCircle(x_origin, y_origin, radius, num_segments);
+        drawCircle(currentCenter.getX(), currentCenter.getY(), radius, num_segments);
    } else {
-        currentCircleMoving->setCenter_x(x_origin);
-        currentCircleMoving->setCenter_y(y_origin);
+       currentCircleMoving->updateCenter(currentCenter);
    }
 
     for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
@@ -175,10 +128,9 @@ void mouse(int button, int state, int x, int y) {
     if(button == GLUT_LEFT_BUTTON) {
         if(state == GLUT_UP) {
             isLeftMouseButtonPressed = false;
-            x_origin = x / float(x_window_size);
-            y_origin = 1.0 - (y / float(y_windows_size));
+            updateCurrentCenter(x, y);
 
-            Circle circle(x_origin, y_origin, radius);
+            Circle circle(currentCenter.getX(), currentCenter.getY(), radius);
 
             if(checkIntersection(circle) == false) {
                 circles.push_back(circle);
@@ -199,7 +151,7 @@ void mouse(int button, int state, int x, int y) {
             //puts(std::to_string(y_origin).c_str());
         } else {
             for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
-                if(circle_it->isPointInCircle(x_origin, y_origin)) {
+                if(circle_it->isPointInCircle(currentCenter.getX(), currentCenter.getY())) {
                     circle_it->setMoving(true);
                     currentCircleMoving = &(*circle_it);
                     break;
@@ -213,19 +165,17 @@ void mouse(int button, int state, int x, int y) {
 
 void motion(int x, int y) {
     if(isLeftMouseButtonPressed) {
-        x_origin = x / float(x_window_size);
-        y_origin = 1.0 - (y / float(y_windows_size));
+        updateCurrentCenter(x, y);
     }
 
     if(isRightMouseButtonPressed) {
-        x_origin = x / float(x_window_size);
-        y_origin = 1.0 - (y / float(y_windows_size));
+        updateCurrentCenter(x, y);
     }
 }
 
 void passiveMotion(int x, int y) {
-    x_origin = x / float(x_window_size);
-    y_origin = 1.0 - (y / float(y_windows_size));
+    updateCurrentCenter(x, y);
+    Circle circle(currentCenter.getX(), currentCenter.getY(), radius);
 }
 
 void init(void) 
@@ -249,8 +199,6 @@ int main(int argc, char** argv)
     init();
     glutDisplayFunc(display);
 
-    glutKeyboardFunc(keyPress);
-    glutKeyboardUpFunc(keyUp); 
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutPassiveMotionFunc(passiveMotion);

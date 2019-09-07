@@ -7,14 +7,18 @@
 
 using namespace std;
 
-bool Circle::isPointInCircle(float x, float y) {
-    float d = sqrt( pow((x - center_x), 2) + pow((y - center_y), 2) );
+bool Circle::isPointInCircle(Point p) {
+    float d = sqrt( pow((p.getX() - center.getX()), 2) + pow((p.getY() - center.getY()), 2) );
 
     if(d > radius) {
         return false;
     } 
 
     return true;
+}
+
+bool Circle::isPointInCircle(float x, float y) {
+    return isPointInCircle(Point(x, y));
 }
 
 bool Circle::checkIntersection(Circle circle, int num_segments) {
