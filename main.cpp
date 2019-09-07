@@ -11,6 +11,8 @@
 
 using namespace std;
 
+const string config_base_filename = "/config.xml";
+
 string window_title;
 int window_size_x = 250;
 int window_size_y = 250;
@@ -26,7 +28,6 @@ bool isLeftMouseButtonPressed = false;
 bool isRightMouseButtonPressed = false;
 
 Draw draw;
-
 
 void circleInit(TiXmlElement *application)
 {
@@ -153,7 +154,7 @@ void windowInit(TiXmlElement *application)
     titleInit(window);
 }
 
-void parametersInit(const char *filename)
+bool parametersInit(const char *filename)
 {
     TiXmlDocument doc(filename);
     bool loadOkay = doc.LoadFile();
@@ -165,10 +166,14 @@ void parametersInit(const char *filename)
         circleInit(application);
         circleModelInit(application);
         windowInit(application);
+
+        return true;
     }
     else
     {
-        puts("Failed to load file");
+        cout << "Failed to load file" << endl;
+
+        return false;
     }
 }
 
@@ -264,35 +269,39 @@ void passiveMotion(int x, int y)
 
 void init(void)
 {
-    /* selecionar cor de fundo (preto) */
     glClearColor(backgroundColor.getR(), backgroundColor.getG(), backgroundColor.getB(), 0.0);
 
     /* Inicializa sistema de viz */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, 1, 0.0, 1, -1.0, 1.0);
-    //glOrtho(0.0f, window_size_x, window_size_y, 0.0f, 0.0f, 1.0f);
+
+    glOrtho( 0, window_size_x, 0, window_size_y, -1, 1 );
 }
 
 int main(int argc, char **argv)
 {
-    string filename = "Test_1/config.xml";
-    parametersInit(filename.c_str());
+    if(argc > 1) {
+        string filename = argv[1] + config_base_filename;
 
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(window_size_x, window_size_y);
-    glutInitWindowPosition(window_initial_x_position, window_initial_y_position);
-    glutCreateWindow(window_title.c_str());
-    init();
-    glutDisplayFunc(display);
+        if(parametersInit(filename.c_str())) {
+            glutInit(&argc, argv);
+            glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+            glutInitWindowSize(window_size_x, window_size_y);
+            glutInitWindowPosition(window_initial_x_position, window_initial_y_position);
+            glutCreateWindow(window_title.c_str());
+            init();
+            glutDisplayFunc(display);
 
-    glutMouseFunc(mouse);
-    glutMotionFunc(motion);
-    glutPassiveMotionFunc(passiveMotion);
+            glutMouseFunc(mouse);
+            glutMotionFunc(motion);
+            glutPassiveMotionFunc(passiveMotion);
 
-    glutIdleFunc(idle);
-    glutMainLoop();
+            glutIdleFunc(idle);
+            glutMainLoop();
+        }
 
-    return 0;
+        return 0;
+    } else {
+        cout << "Voce deve passar como parametro o diretorio de arquivo config.xml" << endl;
+    }
 }

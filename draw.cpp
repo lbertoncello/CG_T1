@@ -56,8 +56,11 @@ void Draw::drawFilledCircle(float x1, float y1, double radius, Color color)
 
 void Draw::updateCurrentCenter(float x, float y, float x_window_size, float y_window_size)
 {
-    float center_x = x / float(x_window_size);
-    float center_y = 1.0 - (y / float(y_window_size));
+    //float center_x = x / float(x_window_size);
+    //float center_y = 1.0 - (y / float(y_window_size));
+
+    float center_x = x;
+    float center_y = y_window_size - y;
 
     currentCenter.update(center_x, center_y);
 }
