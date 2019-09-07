@@ -46,6 +46,7 @@ bool isRightMouseButtonPressed = false;
 
 vector<Circle> circles;
 vector<Circle>::iterator circle_it;
+Circle* currentCircleMoving = NULL;
 
 void keyOperations (void) {  
     if (keyStates['w']) { // If the 'a' key has been pressed  
@@ -139,16 +140,16 @@ void display (void) {
     glEnd();
     */
 
-    for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
-        if(circle_it->isMoving()) {
-            circle_it->setCenter_x(x_origin);
-            circle_it->setCenter_y(y_origin);
-        }
+   if(currentCircleMoving == NULL) {
+        drawCircle(x_origin, y_origin, radius, 100);
+   } else {
+        currentCircleMoving->setCenter_x(x_origin);
+        currentCircleMoving->setCenter_y(y_origin);
+   }
 
+    for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
         drawFilledCircle(circle_it->getCenter_x(), circle_it->getCenter_y(), circle_it->getRadius());
     }
-
-    drawCircle(x_origin, y_origin, radius, 100);
     //drawFilledCircle(x_origin, y_origin, radius);
 
     /* Não esperar */
@@ -175,17 +176,21 @@ void mouse(int button, int state, int x, int y) {
         }
     }
 
-        if(button == GLUT_RIGHT_BUTTON) {
+    if(button == GLUT_RIGHT_BUTTON) {
         if(state == GLUT_UP) {
             isRightMouseButtonPressed = false;
-            x_origin = x / float(x_window_size);
-            y_origin = 1.0 - (y / float(y_windows_size));
-
-            Circle circle(x_origin, y_origin, radius);
-            circles.push_back(circle);
+            currentCircleMoving = NULL;
             //puts(std::to_string(x_origin).c_str());
             //puts(std::to_string(y_origin).c_str());
         } else {
+            for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
+                if(circle_it->isPointInCircle(x_origin, y_origin)) {
+                    circle_it->setMoving(true);
+                    currentCircleMoving = &(*circle_it);
+                    break;
+                }
+            }
+
             isRightMouseButtonPressed = true;
         }
     }
@@ -200,13 +205,6 @@ void motion(int x, int y) {
     if(isRightMouseButtonPressed) {
         x_origin = x / float(x_window_size);
         y_origin = 1.0 - (y / float(y_windows_size));
-
-        for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
-            if(circle_it->isPointInCircle(x_origin, y_origin)) {
-                circle_it->setMoving(true);
-                break;
-            }
-        }
     }
 }
 

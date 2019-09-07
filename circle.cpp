@@ -1,12 +1,17 @@
+#include <stdio.h>
 #include <cmath>
+#include <iostream>
+#include <string>
 
 #include "circle.h"
 
+using namespace std;
+
 bool Circle::isPointInCircle(float x, float y) {
-    int d = sqrt( pow((x - center_x), 2) - pow((x - center_y), 2));
+    float d = sqrt( pow((x - center_x), 2) + pow((y - center_y), 2) );
 
     if(d > radius) {
-        false;
+        return false;
     } 
 
     return true;
