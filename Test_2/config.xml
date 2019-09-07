@@ -1,0 +1,10 @@
+<aplicacao>
+	<circulo raio="21" corR="0.0" corG="1.0" corB="1.0"></circulo>
+	<circuloModelo corR="1.0" corG="1.0" corB="1.0" corSobreposicaoR="1.0" corSobreposicaoG="0.0" corSobreposicaoB="1.0"></circuloModelo>
+	<janela>
+		<dimensao largura="500" altura="500"></dimensao>
+		<fundo corR="0.0" corG="0.0" corB="0.0"></fundo>
+		<titulo>Meus circulos que arrastam - Teste 2</titulo>
+	</janela>
+</aplicacao>
+
