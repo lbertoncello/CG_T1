@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -21,6 +22,8 @@ glutMouseFunc(mouse);
 
 glutmotionfunc
 */
+
+const float PI = 3.14159;
 
 int x_window_size = 250;
 int y_windows_size = 250;
@@ -74,6 +77,43 @@ void keyUp (unsigned char key, int x, int y) {
     keyStates[key] = false; // Set the state of the current key to not pressed  
 }  
 
+void drawCircle(float cx, float cy, float r, int num_segments) 
+{ 
+	glBegin(GL_LINE_LOOP); 
+	for(int ii = 0; ii < num_segments; ii++) 
+	{ 
+		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle 
+
+		float x = r * cosf(theta);//calculate the x component 
+		float y = r * sinf(theta);//calculate the y component 
+
+		glVertex2f(x + cx, y + cy);//output vertex 
+
+	} 
+	glEnd(); 
+}
+
+void drawFilledCircle(float x1, float y1, double radius) {
+    //filled circle
+    float x2,y2;
+    float angle;
+
+    //x1 = 0.5,y1=0.6;
+    glColor3f(1.0,1.0,0.6);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x1,y1);
+
+    for (angle=1.0f;angle<361.0f;angle+=0.2)
+    {
+        x2 = x1+sin(angle)*radius;
+        y2 = y1+cos(angle)*radius;
+        glVertex2f(x2,y2);
+    }
+
+    glEnd();
+}
+
 void display (void) {
     keyOperations();
      /* Limpar todos os pixels */
@@ -81,12 +121,18 @@ void display (void) {
 
     /* Desenhar um polígono branco (retângulo) */
     glColor3f(1.0, 1.0, 1.0);
+
+    /*
     glBegin(GL_POLYGON);
         glVertex3f(x_origin - 0.25 + x_offset, y_origin - 0.25 + y_offset, 0.0);
         glVertex3f(x_origin + 0.25 + x_offset, y_origin - 0.25 + y_offset, 0.0);
         glVertex3f(x_origin + 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
         glVertex3f(x_origin - 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
     glEnd();
+    */
+
+    //drawCircle(0.5, 0.5, 0.1, 100);
+    drawFilledCircle(0.5, 0.5, 0.1);
 
     /* Não esperar */
     glFlush();
