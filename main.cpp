@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <vector>
+
+#include "circle.h"
 
 using namespace std;
 
@@ -35,9 +38,14 @@ float x_offset = 0;
 float y_offset = 0;
 float x_origin = 0.5;
 float y_origin = 0.5;
+float radius = 0.1;
 
 bool* keyStates = new bool[256];
 bool isLeftMouseButtonPressed = false;
+bool isRightMouseButtonPressed = false;
+
+vector<Circle> circles;
+vector<Circle>::iterator circle_it;
 
 void keyOperations (void) {  
     if (keyStates['w']) { // If the 'a' key has been pressed  
@@ -127,12 +135,21 @@ void display (void) {
         glVertex3f(x_origin - 0.25 + x_offset, y_origin - 0.25 + y_offset, 0.0);
         glVertex3f(x_origin + 0.25 + x_offset, y_origin - 0.25 + y_offset, 0.0);
         glVertex3f(x_origin + 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
-        glVertex3f(x_origin - 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
+        glVertevector<Circle>::iterator circle_itx3f(x_origin - 0.25 + x_offset, y_origin + 0.25 + y_offset, 0.0);
     glEnd();
     */
 
-    //drawCircle(0.5, 0.5, 0.1, 100);
-    drawFilledCircle(0.5, 0.5, 0.1);
+    for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
+        if(circle_it->isMoving()) {
+            circle_it->setCenter_x(x_origin);
+            circle_it->setCenter_y(y_origin);
+        }
+
+        drawFilledCircle(circle_it->getCenter_x(), circle_it->getCenter_y(), circle_it->getRadius());
+    }
+
+    drawCircle(x_origin, y_origin, radius, 100);
+    //drawFilledCircle(x_origin, y_origin, radius);
 
     /* Não esperar */
     glFlush();
@@ -145,12 +162,31 @@ void idle(void) {
 void mouse(int button, int state, int x, int y) {
     if(button == GLUT_LEFT_BUTTON) {
         if(state == GLUT_UP) {
+            isLeftMouseButtonPressed = false;
             x_origin = x / float(x_window_size);
             y_origin = 1.0 - (y / float(y_windows_size));
+
+            Circle circle(x_origin, y_origin, radius);
+            circles.push_back(circle);
             //puts(std::to_string(x_origin).c_str());
             //puts(std::to_string(y_origin).c_str());
         } else {
             isLeftMouseButtonPressed = true;
+        }
+    }
+
+        if(button == GLUT_RIGHT_BUTTON) {
+        if(state == GLUT_UP) {
+            isRightMouseButtonPressed = false;
+            x_origin = x / float(x_window_size);
+            y_origin = 1.0 - (y / float(y_windows_size));
+
+            Circle circle(x_origin, y_origin, radius);
+            circles.push_back(circle);
+            //puts(std::to_string(x_origin).c_str());
+            //puts(std::to_string(y_origin).c_str());
+        } else {
+            isRightMouseButtonPressed = true;
         }
     }
 }
@@ -160,6 +196,23 @@ void motion(int x, int y) {
         x_origin = x / float(x_window_size);
         y_origin = 1.0 - (y / float(y_windows_size));
     }
+
+    if(isRightMouseButtonPressed) {
+        x_origin = x / float(x_window_size);
+        y_origin = 1.0 - (y / float(y_windows_size));
+
+        for(circle_it = circles.begin(); circle_it != circles.end(); circle_it++)    {
+            if(circle_it->isPointInCircle(x_origin, y_origin)) {
+                circle_it->setMoving(true);
+                break;
+            }
+        }
+    }
+}
+
+void passiveMotion(int x, int y) {
+    x_origin = x / float(x_window_size);
+    y_origin = 1.0 - (y / float(y_windows_size));
 }
 
 void init(void) 
@@ -187,6 +240,7 @@ int main(int argc, char** argv)
     glutKeyboardUpFunc(keyUp); 
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
+    glutPassiveMotionFunc(passiveMotion);
 
     glutIdleFunc(idle);
     glutMainLoop();
