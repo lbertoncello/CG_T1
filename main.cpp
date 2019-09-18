@@ -82,11 +82,11 @@ void circleModelInit(TiXmlElement *application)
         }
         else if (strcmp(circleAttribute->Name(), "corSobreposicaoR") == 0)
         {
-            circleModelOverlapColor.setB(stof(circleAttribute->Value()));
+            circleModelOverlapColor.setR(stof(circleAttribute->Value()));
         }
         else if (strcmp(circleAttribute->Name(), "corSobreposicaoG") == 0)
         {
-            circleModelOverlapColor.setB(stof(circleAttribute->Value()));
+            circleModelOverlapColor.setG(stof(circleAttribute->Value()));
         }
         else if (strcmp(circleAttribute->Name(), "corSobreposicaoB") == 0)
         {
